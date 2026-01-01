@@ -56,8 +56,8 @@ const clerkAppearance = {
   },
 };
 
-// Check if Clerk is configured
-const hasClerkKey = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+// CLERK DISABLED - enable after adding Vercel domain to Clerk Dashboard
+const hasClerkKey = false;
 
 export default function RootLayout({
   children,

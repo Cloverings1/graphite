@@ -1,99 +1,49 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
-import {
-  SignInButton as ClerkSignInButton,
-  SignUpButton as ClerkSignUpButton,
-  SignedIn as ClerkSignedIn,
-  SignedOut as ClerkSignedOut,
-  UserButton as ClerkUserButton,
-  SignOutButton as ClerkSignOutButton,
-} from "@clerk/nextjs";
+import { ReactNode } from "react";
 
-// Check if Clerk is configured
-const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+// CLERK DISABLED - To enable:
+// 1. Add your Vercel domain to Clerk Dashboard → Domains
+// 2. Set ENABLE_CLERK=true below
+const ENABLE_CLERK = false;
 
-// Hook to check if we're on the client (after hydration)
-function useIsClient() {
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  return isClient;
-}
-
-// Wrapper components that fall back gracefully when Clerk is not configured
-// or during server-side rendering
+// Stub components that render without Clerk
 export function SignedOut({ children }: { children: ReactNode }) {
-  const isClient = useIsClient();
-
-  // During SSR or when Clerk is not configured, show signed out content
-  if (!isClient || !isClerkConfigured) {
-    return <>{children}</>;
-  }
-  return <ClerkSignedOut>{children}</ClerkSignedOut>;
+  return <>{children}</>;
 }
 
 export function SignedIn({ children }: { children: ReactNode }) {
-  const isClient = useIsClient();
-
-  // During SSR or when Clerk is not configured, hide signed in content
-  if (!isClient || !isClerkConfigured) {
-    return null;
-  }
-  return <ClerkSignedIn>{children}</ClerkSignedIn>;
+  if (!ENABLE_CLERK) return null;
+  return <>{children}</>;
 }
 
 export function SignInButton({
   children,
-  mode,
 }: {
   children: ReactNode;
   mode?: "modal" | "redirect";
 }) {
-  const isClient = useIsClient();
-
-  if (!isClient || !isClerkConfigured) {
-    return <>{children}</>;
-  }
-  return <ClerkSignInButton mode={mode}>{children}</ClerkSignInButton>;
+  return <>{children}</>;
 }
 
 export function SignUpButton({
   children,
-  mode,
 }: {
   children: ReactNode;
   mode?: "modal" | "redirect";
 }) {
-  const isClient = useIsClient();
-
-  if (!isClient || !isClerkConfigured) {
-    return <>{children}</>;
-  }
-  return <ClerkSignUpButton mode={mode}>{children}</ClerkSignUpButton>;
+  return <>{children}</>;
 }
 
 export function UserButton({ afterSignOutUrl }: { afterSignOutUrl?: string }) {
-  const isClient = useIsClient();
-
-  if (!isClient || !isClerkConfigured) {
-    return null;
-  }
-  return <ClerkUserButton afterSignOutUrl={afterSignOutUrl} />;
+  return null;
 }
 
 export function SignOutButton({
   children,
-  redirectUrl,
 }: {
   children: ReactNode;
   redirectUrl?: string;
 }) {
-  const isClient = useIsClient();
-
-  if (!isClient || !isClerkConfigured) {
-    return <>{children}</>;
-  }
-  return <ClerkSignOutButton redirectUrl={redirectUrl}>{children}</ClerkSignOutButton>;
+  return <>{children}</>;
 }
