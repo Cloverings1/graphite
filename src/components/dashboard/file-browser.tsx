@@ -10,9 +10,10 @@ import { cn } from "@/lib/utils";
 interface FileBrowserProps {
   files: FileItem[];
   title?: string;
+  loading?: boolean;
 }
 
-export function FileBrowser({ files, title = "All Files" }: FileBrowserProps) {
+export function FileBrowser({ files, title = "All Files", loading = false }: FileBrowserProps) {
   const [view, setView] = useState<"list" | "grid">("list");
 
   return (
@@ -28,9 +29,14 @@ export function FileBrowser({ files, title = "All Files" }: FileBrowserProps) {
 
       {/* File list/grid */}
       <div className="mt-4">
-        {files.length === 0 ? (
+        {loading ? (
           <div className="py-12 text-center text-muted">
-            No files found
+            <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            <p className="mt-2">Loading files...</p>
+          </div>
+        ) : files.length === 0 ? (
+          <div className="py-12 text-center text-muted">
+            No files yet. Upload something to get started.
           </div>
         ) : view === "grid" ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
