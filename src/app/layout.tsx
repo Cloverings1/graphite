@@ -56,8 +56,9 @@ const clerkAppearance = {
   },
 };
 
-// Check if Clerk is configured
-const hasClerkKey = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+// Temporarily disabled - enable after adding Vercel domain to Clerk dashboard
+// Go to: https://dashboard.clerk.com → Your App → Domains → Add: graphite-dou5.vercel.app
+const hasClerkKey = false; // !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export default function RootLayout({
   children,
