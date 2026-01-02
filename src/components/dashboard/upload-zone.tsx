@@ -3,10 +3,12 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { cn, formatBytes } from "@/lib/utils";
 import { Upload, Cloud, X, CheckCircle2, AlertCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://172.237.157.209";
+const supabase = createClient();
 
 interface UploadFile {
   id: string;
@@ -38,10 +40,16 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
     uppy.use(Tus, {
       endpoint: `${API_URL}/upload`,
-      chunkSize: 5 * 1024 * 1024, // 5MB chunks for parallel upload
-      retryDelays: [0, 1000, 3000, 5000],
-      parallelUploads: 6, // 6 parallel chunk uploads
-      // Auth headers will be added when Clerk is re-enabled
+      chunkSize: 10 * 1024 * 1024, // 10MB chunks - larger = fewer requests
+      retryDelays: [0, 500, 1000, 3000],
+      parallelUploads: 10, // 10 parallel chunk uploads for max speed
+      removeFingerprintOnSuccess: true, // Clean up after upload
+      async onBeforeRequest(req) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          req.setHeader("Authorization", `Bearer ${session.access_token}`);
+        }
+      },
     });
 
     uppy.on("file-added", (file) => {

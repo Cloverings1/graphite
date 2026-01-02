@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { UploadZone } from "@/components/dashboard/upload-zone";
 import { FileBrowser } from "@/components/dashboard/file-browser";
 import type { FileItem } from "@/types";
@@ -10,13 +11,20 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://172.237.157.209";
 export default function DashboardPage() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
   const fetchFiles = useCallback(async () => {
     try {
-      // Auth temporarily disabled - using mock token
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(`${API_URL}/api/files?parent_id=null`, {
         headers: {
-          // Token will be added when auth is re-enabled
+          Authorization: `Bearer ${session.access_token}`,
         },
       });
 
@@ -40,7 +48,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [supabase.auth]);
 
   useEffect(() => {
     fetchFiles();
