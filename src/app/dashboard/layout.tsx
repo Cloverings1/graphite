@@ -17,9 +17,10 @@ export default function DashboardLayout({
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Use getUser() first to validate/refresh the session
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-      if (!session) {
+      if (error || !user) {
         router.push("/login");
         return;
       }

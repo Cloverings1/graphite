@@ -41,7 +41,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
     uppy.use(Tus, {
       endpoint: `${API_URL}/upload`,
-      chunkSize: 50 * 1024 * 1024, // 50MB chunks for faster uploads with fewer requests
+      chunkSize: 100 * 1024 * 1024, // 100MB chunks for maximum speed with fewer HTTP roundtrips
       retryDelays: [0, 1000, 3000], // Retry delays
       removeFingerprintOnSuccess: true, // Clean up after upload
       async onBeforeRequest(req) {
