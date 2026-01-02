@@ -37,7 +37,7 @@ export function Pricing() {
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {tier.popular && (
-                <div className="absolute -top-3 left-6">
+                <div className="absolute top-6 right-6">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-medium tracking-wider uppercase">
                     <span className="h-1 w-1 rounded-full bg-accent-foreground animate-glow-pulse" />
                     Popular
