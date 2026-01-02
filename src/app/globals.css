@@ -233,7 +233,7 @@ body::before {
 /* Hover shine effect */
 .hover-shine {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .hover-shine::before {
