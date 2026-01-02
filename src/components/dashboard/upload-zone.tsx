@@ -47,10 +47,11 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
     uppy.use(Tus, {
       endpoint: `${API_URL}/upload`,
-      chunkSize: 256 * 1024 * 1024, // 256MB chunks for maximum speed
-      retryDelays: [0, 1000, 3000],
+      chunkSize: 512 * 1024 * 1024, // 512MB chunks (max throughput for stable gigabit+)
+      retryDelays: [0, 1000, 3000, 5000],
       removeFingerprintOnSuccess: true,
-      limit: 3, // 3 parallel uploads to saturate bandwidth
+      limit: 10, // 8-10 parallel uploads for max throughput
+      // parallelUploads: 4, // TODO: Enable when backend supports TUS concatenation
       async onBeforeRequest(req) {
         // Use cached token if still valid (refresh 5 min before expiry)
         const now = Date.now();

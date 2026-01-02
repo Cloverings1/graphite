@@ -15,7 +15,7 @@ export function SpeedSection() {
             </span>
             <span className="ml-4 text-4xl md:text-6xl text-foreground-muted font-light">
               in{" "}
-              <span className="text-gradient font-serif italic">43 seconds</span>
+              <span className="text-gradient font-serif italic">59 seconds</span>
             </span>
           </div>
 
@@ -57,7 +57,7 @@ export function SpeedSection() {
               <div className="p-4 text-center font-mono text-xs text-success font-medium">
                 1+ Gbps
               </div>
-              <div className="p-4 text-right text-success font-medium">43 sec</div>
+              <div className="p-4 text-right text-success font-medium">59 sec</div>
             </div>
           </div>
 
