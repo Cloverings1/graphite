@@ -1,0 +1,6 @@
+# Copy these to Vercel Dashboard > Settings > Environment Variables
+# https://vercel.com/your-project/settings/environment-variables
+
+NEXT_PUBLIC_SUPABASE_URL=https://gvdrutatjulohsuzcyvn.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2ZHJ1dGF0anVsb2hzdXpjeXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcyOTczMzksImV4cCI6MjA4Mjg3MzMzOX0.JQKN-zNeWLz_Mxw7n2Vr6dmOBtHj-wyNN3Hvk1OVXm0
+NEXT_PUBLIC_API_URL=https://api.graphite.atxcopy.com

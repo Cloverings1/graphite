@@ -45,9 +45,10 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
     uppy.use(Tus, {
       endpoint: `${API_URL}/upload`,
-      chunkSize: 100 * 1024 * 1024, // 100MB chunks for maximum speed
+      chunkSize: 256 * 1024 * 1024, // 256MB chunks for maximum speed
       retryDelays: [0, 1000, 3000],
       removeFingerprintOnSuccess: true,
+      limit: 3, // 3 parallel uploads to saturate bandwidth
       async onBeforeRequest(req) {
         // Use cached token if still valid (refresh 5 min before expiry)
         const now = Date.now();
