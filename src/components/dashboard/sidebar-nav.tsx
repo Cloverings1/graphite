@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Files, Star, Clock, Trash2 } from "lucide-react";
+import { Files, Star, Clock } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -9,7 +9,6 @@ const navItems = [
   { label: "All Files", href: "/dashboard", icon: Files },
   { label: "Starred", href: "/dashboard/starred", icon: Star },
   { label: "Recent", href: "/dashboard/recent", icon: Clock },
-  { label: "Trash", href: "/dashboard/trash", icon: Trash2 },
 ];
 
 export function SidebarNav() {

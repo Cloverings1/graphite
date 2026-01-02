@@ -144,7 +144,7 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
 
   const handleDelete = async () => {
     setMenuOpen(false);
-    if (!confirm(`Move "${file.name}" to trash?`)) return;
+    if (!confirm(`Permanently delete "${file.name}"?`)) return;
 
     try {
       const headers = await getAuthHeaders();

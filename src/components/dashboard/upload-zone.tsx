@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { cn, formatBytes } from "@/lib/utils";
+import { cn, formatBytes, formatDuration } from "@/lib/utils";
 import { Upload, Cloud, X, CheckCircle2, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Uppy from "@uppy/core";
@@ -17,6 +17,8 @@ interface UploadFile {
   speed: number;
   status: "uploading" | "complete" | "error";
   error?: string;
+  startTime: number;
+  duration?: number;
 }
 
 interface UploadZoneProps {
@@ -68,6 +70,8 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
     });
 
     uppy.on("file-added", (file) => {
+      const startTime = Date.now();
+      file.meta.startTime = startTime;
       setUploads((prev) => [
         ...prev,
         {
@@ -77,6 +81,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
           progress: 0,
           speed: 0,
           status: "uploading",
+          startTime,
         },
       ]);
     });
@@ -100,9 +105,11 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
     uppy.on("upload-success", (file) => {
       if (!file) return;
+      const startTime = file.meta.startTime as number || Date.now();
+      const duration = Math.round((Date.now() - startTime) / 1000);
       setUploads((prev) =>
         prev.map((u) =>
-          u.id === file.id ? { ...u, progress: 100, status: "complete" } : u
+          u.id === file.id ? { ...u, progress: 100, status: "complete", duration } : u
         )
       );
       onUploadComplete?.();
@@ -117,10 +124,6 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
             : u
         )
       );
-    });
-
-    uppy.on("file-added", (file) => {
-      file.meta.startTime = Date.now();
     });
 
     uppyRef.current = uppy;
@@ -192,6 +195,14 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
   const activeUploads = uploads.filter((u) => u.status === "uploading");
   const completedUploads = uploads.filter((u) => u.status === "complete");
 
+  // Force re-render every second for live elapsed time
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (activeUploads.length === 0) return;
+    const interval = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(interval);
+  }, [activeUploads.length]);
+
   return (
     <div className="space-y-4">
       <input
@@ -253,6 +264,9 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
                 <div className="flex items-center justify-between text-sm">
                   <span className="truncate font-medium">{upload.name}</span>
                   <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted">
+                      {formatDuration(Math.floor((Date.now() - upload.startTime) / 1000))}
+                    </span>
                     <span className="text-xs text-muted-foreground">
                       {formatBytes(upload.speed)}/s
                     </span>
@@ -301,9 +315,12 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
             {completedUploads.slice(0, 5).map((upload) => (
               <div key={upload.id} className="flex items-center justify-between text-sm">
                 <span className="truncate">{upload.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {formatBytes(upload.size)}
-                </span>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  {upload.duration !== undefined && (
+                    <span className="text-green-500">{formatDuration(upload.duration)}</span>
+                  )}
+                  <span>{formatBytes(upload.size)}</span>
+                </div>
               </div>
             ))}
             {completedUploads.length > 5 && (
