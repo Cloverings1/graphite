@@ -39,24 +39,29 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
       autoProceed: true,
     });
 
+    // Cache token to avoid auth calls on every chunk
+    let cachedToken: string | null = null;
+    let tokenExpiry = 0;
+
     uppy.use(Tus, {
       endpoint: `${API_URL}/upload`,
-      chunkSize: 100 * 1024 * 1024, // 100MB chunks for maximum speed with fewer HTTP roundtrips
-      retryDelays: [0, 1000, 3000], // Retry delays
-      removeFingerprintOnSuccess: true, // Clean up after upload
+      chunkSize: 100 * 1024 * 1024, // 100MB chunks for maximum speed
+      retryDelays: [0, 1000, 3000],
+      removeFingerprintOnSuccess: true,
       async onBeforeRequest(req) {
-        // Validate session first with getUser(), then get fresh token
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          console.error("Auth error:", userError?.message || "No user");
+        // Use cached token if still valid (refresh 5 min before expiry)
+        const now = Date.now();
+        if (cachedToken && tokenExpiry > now + 300000) {
+          req.setHeader("Authorization", `Bearer ${cachedToken}`);
           return;
         }
 
+        // Get fresh token
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.access_token) {
-          req.setHeader("Authorization", `Bearer ${session.access_token}`);
-        } else {
-          console.error("No access token in session");
+          cachedToken = session.access_token;
+          tokenExpiry = (session.expires_at || 0) * 1000; // Convert to ms
+          req.setHeader("Authorization", `Bearer ${cachedToken}`);
         }
       },
     });
