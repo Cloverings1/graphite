@@ -19,9 +19,11 @@ import {
   Trash2,
   StarOff,
   X,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { ShareDialog } from "./share-dialog";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.graphite.atxcopy.com";
 
@@ -50,6 +52,7 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
   const [renaming, setRenaming] = useState(false);
   const [newName, setNewName] = useState(file.name);
   const [loading, setLoading] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
@@ -160,6 +163,7 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
 
   const menuItems = [
     { icon: Download, label: "Download", onClick: handleDownload, show: file.type === "file" },
+    { icon: Share2, label: "Share", onClick: () => { setMenuOpen(false); setShareDialogOpen(true); }, show: file.type === "file" },
     { icon: Pencil, label: "Rename", onClick: () => { setMenuOpen(false); setRenaming(true); }, show: true },
     { icon: file.starred ? StarOff : Star, label: file.starred ? "Unstar" : "Star", onClick: handleToggleStar, show: true },
     { icon: FolderInput, label: "Move to...", onClick: () => { setMenuOpen(false); alert("Move feature coming soon!"); }, show: true },
@@ -212,81 +216,103 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
 
   if (view === "grid") {
     return (
-      <div className="group relative rounded-xl border border-border bg-card p-4 transition-colors hover:border-muted-foreground">
-        <div className="flex flex-col items-center gap-3">
-          <div className="rounded-lg bg-background p-4">
-            <Icon className="h-8 w-8 text-muted" />
+      <>
+        <div className="group relative rounded-xl border border-border bg-card p-4 transition-colors hover:border-muted-foreground">
+          <div className="flex flex-col items-center gap-3">
+            <div className="rounded-lg bg-background p-4">
+              <Icon className="h-8 w-8 text-muted" />
+            </div>
+            <div className="w-full text-center">
+              {renaming ? (
+                <form onSubmit={(e) => { e.preventDefault(); handleRename(); }}>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    onBlur={handleRename}
+                    onKeyDown={(e) => e.key === "Escape" && setRenaming(false)}
+                    disabled={loading}
+                    className="w-full rounded border border-accent bg-background px-2 py-1 text-center text-sm outline-none"
+                  />
+                </form>
+              ) : (
+                <>
+                  <p className="truncate text-sm font-medium">{file.name}</p>
+                  <p className="text-xs text-muted">
+                    {file.size ? formatBytes(file.size) : "--"}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
-          <div className="w-full text-center">
-            {renaming ? (
-              <form onSubmit={(e) => { e.preventDefault(); handleRename(); }}>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  onBlur={handleRename}
-                  onKeyDown={(e) => e.key === "Escape" && setRenaming(false)}
-                  disabled={loading}
-                  className="w-full rounded border border-accent bg-background px-2 py-1 text-center text-sm outline-none"
-                />
-              </form>
-            ) : (
-              <>
-                <p className="truncate text-sm font-medium">{file.name}</p>
-                <p className="text-xs text-muted">
-                  {file.size ? formatBytes(file.size) : "--"}
-                </p>
-              </>
-            )}
+          {file.starred && (
+            <Star className="absolute right-2 top-2 h-4 w-4 fill-accent text-accent" />
+          )}
+          <div className="absolute right-2 bottom-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+            {menuOpen && renderMenu()}
           </div>
         </div>
-        {file.starred && (
-          <Star className="absolute right-2 top-2 h-4 w-4 fill-accent text-accent" />
+
+        {/* Share Dialog */}
+        {shareDialogOpen && (
+          <ShareDialog
+            fileId={file.id}
+            fileName={file.name}
+            onClose={() => setShareDialogOpen(false)}
+          />
         )}
-        <div className="absolute right-2 bottom-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
-          >
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-          {menuOpen && renderMenu()}
-        </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="group flex items-center gap-4 rounded-lg border border-transparent px-4 py-3 transition-colors hover:border-border hover:bg-card">
-      <Icon className="h-5 w-5 shrink-0 text-muted" />
+    <>
+      <div className="group flex items-center gap-4 rounded-lg border border-transparent px-4 py-3 transition-colors hover:border-border hover:bg-card">
+        <Icon className="h-5 w-5 shrink-0 text-muted" />
 
-      <div className="min-w-0 flex-1">
-        {renderName()}
-      </div>
+        <div className="min-w-0 flex-1">
+          {renderName()}
+        </div>
 
-      <div className="flex items-center gap-6 text-sm text-muted">
-        {file.starred && (
-          <Star className="h-4 w-4 fill-accent text-accent" />
-        )}
-        <span className="w-20 text-right">
-          {file.size ? formatBytes(file.size) : "--"}
-        </span>
-        <span className="w-28 text-right">{formatDate(file.updatedAt)}</span>
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
-          >
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-          {menuOpen && renderMenu()}
+        <div className="flex items-center gap-6 text-sm text-muted">
+          {file.starred && (
+            <Star className="h-4 w-4 fill-accent text-accent" />
+          )}
+          <span className="w-20 text-right">
+            {file.size ? formatBytes(file.size) : "--"}
+          </span>
+          <span className="w-28 text-right">{formatDate(file.updatedAt)}</span>
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+            {menuOpen && renderMenu()}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Share Dialog */}
+      {shareDialogOpen && (
+        <ShareDialog
+          fileId={file.id}
+          fileName={file.name}
+          onClose={() => setShareDialogOpen(false)}
+        />
+      )}
+    </>
   );
 }

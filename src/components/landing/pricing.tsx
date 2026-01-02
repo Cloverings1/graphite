@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { pricingTiers } from "@/data/pricing-tiers";
 import { Check } from "lucide-react";
-import { SignUpButton, SignedIn, SignedOut } from "@/components/auth/auth-wrapper";
-import Link from "next/link";
+import { RequestAccessModal } from "./request-access-modal";
 
 export function Pricing() {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <section className="py-32 relative overflow-visible">
       {/* Background accent */}
@@ -29,10 +31,12 @@ export function Pricing() {
           {pricingTiers.map((tier, index) => (
             <div
               key={tier.id}
-              className={`relative rounded-2xl p-8 transition-all duration-500 hover-shine overflow-visible ${
-                tier.popular
-                  ? "glass border border-accent/30 shadow-lg shadow-accent/5"
-                  : "glass glass-border"
+              className={`relative rounded-2xl p-8 transition-all duration-500 overflow-visible ${
+                tier.disabled
+                  ? "glass glass-border opacity-60"
+                  : tier.popular
+                  ? "glass border border-accent/30 shadow-lg shadow-accent/5 hover-shine"
+                  : "glass glass-border hover-shine"
               }`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
@@ -41,6 +45,14 @@ export function Pricing() {
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-medium tracking-wider uppercase">
                     <span className="h-1 w-1 rounded-full bg-accent-foreground animate-glow-pulse" />
                     Popular
+                  </span>
+                </div>
+              )}
+
+              {tier.disabled && (
+                <div className="absolute top-6 right-6">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-border/50 text-muted text-xs font-medium tracking-wider uppercase">
+                    Coming Soon
                   </span>
                 </div>
               )}
@@ -62,7 +74,9 @@ export function Pricing() {
                 </div>
                 <div className="text-sm">
                   <div className="text-foreground-muted mb-1">Upload Performance</div>
-                  <div className="font-medium text-accent">{tier.speed}</div>
+                  <div className={`font-medium ${tier.disabled ? "text-muted" : "text-accent"}`}>
+                    {tier.speed}
+                  </div>
                 </div>
                 <div className="text-sm">
                   <div className="text-foreground-muted mb-1">Retention</div>
@@ -74,41 +88,69 @@ export function Pricing() {
               <ul className="mt-8 space-y-3">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3 text-sm">
-                    <div className="mt-0.5 flex-shrink-0 h-5 w-5 rounded-full bg-success/10 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-success" strokeWidth={2.5} />
+                    <div className={`mt-0.5 flex-shrink-0 h-5 w-5 rounded-full flex items-center justify-center ${
+                      tier.disabled ? "bg-border/50" : "bg-success/10"
+                    }`}>
+                      <Check className={`h-3 w-3 ${tier.disabled ? "text-muted" : "text-success"}`} strokeWidth={2.5} />
                     </div>
                     <span className="text-foreground-muted">{feature}</span>
                   </li>
                 ))}
               </ul>
 
+              {/* Blip Features */}
+              {tier.blipFeatures && tier.blipFeatures.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-border/30">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-5 w-5 rounded bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
+                      <svg className="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-foreground">Blip</span>
+                    <span className="text-xs text-muted">Instant file transfer</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {tier.blipFeatures.map((feature) => (
+                      <li key={feature} className="flex items-start gap-3 text-sm">
+                        <div className={`mt-0.5 flex-shrink-0 h-4 w-4 rounded flex items-center justify-center ${
+                          tier.disabled ? "bg-border/30" : "bg-violet-500/10"
+                        }`}>
+                          <Check className={`h-2.5 w-2.5 ${tier.disabled ? "text-muted" : "text-violet-400"}`} strokeWidth={2.5} />
+                        </div>
+                        <span className="text-foreground-muted text-xs">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {/* CTA */}
               <div className="mt-8">
-                <SignedOut>
-                  <SignUpButton mode="modal">
+                {tier.disabled ? (
+                  <div className="group relative">
                     <button
-                      className={`w-full py-3.5 px-6 rounded-full text-sm font-medium transition-all duration-300 ${
-                        tier.popular
-                          ? "bg-accent text-accent-foreground hover:shadow-lg hover:shadow-accent/20"
-                          : "bg-border/50 text-foreground hover:bg-border"
-                      }`}
+                      disabled
+                      className="w-full py-3.5 px-6 rounded-full text-sm font-medium bg-border/30 text-muted cursor-not-allowed"
                     >
                       {tier.cta}
                     </button>
-                  </SignUpButton>
-                </SignedOut>
-                <SignedIn>
-                  <Link
-                    href="/dashboard"
-                    className={`block w-full py-3.5 px-6 rounded-full text-sm font-medium text-center transition-all duration-300 ${
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                      {tier.disabledReason || "Coming Soon"}
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowModal(true)}
+                    className={`w-full py-3.5 px-6 rounded-full text-sm font-medium transition-all duration-300 ${
                       tier.popular
                         ? "bg-accent text-accent-foreground hover:shadow-lg hover:shadow-accent/20"
                         : "bg-border/50 text-foreground hover:bg-border"
                     }`}
                   >
                     {tier.cta}
-                  </Link>
-                </SignedIn>
+                  </button>
+                )}
               </div>
 
               {/* Popular tier glow */}
@@ -121,9 +163,12 @@ export function Pricing() {
 
         {/* Footer note */}
         <p className="mt-16 text-center text-sm text-muted">
-          Active working storage. Not long-term backup. Built for speed, not hoarding.
+          Designed for active project workflows. Not intended for long-term archival or backup storage.
         </p>
       </div>
+
+      {/* Request Access Modal */}
+      {showModal && <RequestAccessModal onClose={() => setShowModal(false)} />}
     </section>
   );
 }
