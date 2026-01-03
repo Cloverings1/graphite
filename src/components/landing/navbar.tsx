@@ -1,15 +1,7 @@
-"use client";
-
-import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/icons/logo";
-import {
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@/components/auth/auth-wrapper";
 import Link from "next/link";
+
+const TALLY_FORM_URL = "https://tally.so/r/BzdXO4";
 
 export function Navbar() {
   return (
@@ -21,28 +13,15 @@ export function Navbar() {
           </Link>
 
           <div className="flex items-center gap-3 opacity-0 animate-fade-in delay-100">
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="px-4 py-2 text-sm text-foreground-muted hover:text-foreground transition-colors duration-300">
-                  Sign in
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <button className="group relative px-5 py-2.5 text-sm font-medium overflow-hidden rounded-full bg-accent text-accent-foreground transition-all duration-300 hover:shadow-lg hover:shadow-accent/20">
-                  <span className="relative z-10">Get Started</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-accent via-accent-muted to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </button>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <Link
-                href="/dashboard"
-                className="px-4 py-2 text-sm text-foreground-muted hover:text-foreground transition-colors duration-300"
-              >
-                Dashboard
-              </Link>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
+            <a
+              href={TALLY_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative px-5 py-2.5 text-sm font-medium overflow-hidden rounded-full bg-accent text-accent-foreground transition-all duration-300 hover:shadow-lg hover:shadow-accent/20"
+            >
+              <span className="relative z-10">Request Access</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-accent via-accent-muted to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </a>
           </div>
         </div>
       </div>

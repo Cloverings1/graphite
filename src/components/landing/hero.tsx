@@ -1,8 +1,6 @@
-"use client";
-
 import { SpeedDemo } from "./speed-demo";
-import { SignUpButton, SignedIn, SignedOut } from "@/components/auth/auth-wrapper";
-import Link from "next/link";
+
+const TALLY_FORM_URL = "https://tally.so/r/BzdXO4";
 
 export function Hero() {
   return (
@@ -14,7 +12,7 @@ export function Hero() {
       </div>
 
       {/* Subtle grid pattern */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(100,116,139,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(100,116,139,0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(100,116,139,0.02)_1px,transparent_1px),linear_gradient(90deg,rgba(100,116,139,0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
 
       <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto">
         {/* Overline badge */}
@@ -40,33 +38,20 @@ export function Hero() {
 
         {/* CTAs */}
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row opacity-0 animate-fade-up delay-300">
-          <SignedOut>
-            <SignUpButton mode="modal">
-              <button className="group relative px-6 py-3 text-sm font-medium overflow-hidden rounded-full bg-accent text-accent-foreground transition-all duration-500 hover:shadow-xl hover:shadow-accent/20 hover:scale-[1.02]">
-                <span className="relative z-10 flex items-center gap-2">
-                  Get Started — Free Trial
-                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-accent via-accent-muted to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </button>
-            </SignUpButton>
-          </SignedOut>
-          <SignedIn>
-            <Link
-              href="/dashboard"
-              className="group relative px-6 py-3 text-sm font-medium overflow-hidden rounded-full bg-accent text-accent-foreground transition-all duration-500 hover:shadow-xl hover:shadow-accent/20 hover:scale-[1.02]"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Go to Dashboard
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-accent via-accent-muted to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </Link>
-          </SignedIn>
+          <a
+            href={TALLY_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative px-6 py-3 text-sm font-medium overflow-hidden rounded-full bg-accent text-accent-foreground transition-all duration-500 hover:shadow-xl hover:shadow-accent/20 hover:scale-[1.02]"
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              Request Access
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-accent via-accent-muted to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          </a>
           <a
             href="#speed"
             className="group flex items-center gap-2 px-4 py-3 text-sm text-foreground-muted hover:text-foreground transition-colors duration-300"

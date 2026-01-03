@@ -1,7 +1,4 @@
-"use client";
-
-import { SignUpButton, SignedIn, SignedOut } from "@/components/auth/auth-wrapper";
-import Link from "next/link";
+const TALLY_FORM_URL = "https://tally.so/r/BzdXO4";
 
 export function FinalCTA() {
   return (
@@ -23,57 +20,34 @@ export function FinalCTA() {
               <span className="italic text-gradient">waiting?</span>
             </h2>
             <p className="mx-auto mt-6 max-w-md text-lg text-foreground-muted">
-              Start your 14-day free trial. No credit card required.
+              Join the waitlist for early access.
             </p>
 
             <div className="mt-10">
-              <SignedOut>
-                <SignUpButton mode="modal">
-                  <button className="group relative px-10 py-5 text-sm font-medium overflow-hidden rounded-full bg-accent text-accent-foreground transition-all duration-500 hover:shadow-2xl hover:shadow-accent/30 hover:scale-[1.02]">
-                    <span className="relative z-10 flex items-center gap-2">
-                      Get Started — Free Trial
-                      <svg
-                        className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        />
-                      </svg>
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-accent via-accent-muted to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  </button>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <Link
-                  href="/dashboard"
-                  className="group relative inline-flex px-10 py-5 text-sm font-medium overflow-hidden rounded-full bg-accent text-accent-foreground transition-all duration-500 hover:shadow-2xl hover:shadow-accent/30 hover:scale-[1.02]"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Go to Dashboard
-                    <svg
-                      className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 8l4 4m0 0l-4 4m4-4H3"
-                      />
-                    </svg>
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-accent via-accent-muted to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                </Link>
-              </SignedIn>
+              <a
+                href={TALLY_FORM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex px-10 py-5 text-sm font-medium overflow-hidden rounded-full bg-accent text-accent-foreground transition-all duration-500 hover:shadow-2xl hover:shadow-accent/30 hover:scale-[1.02]"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Request Access
+                  <svg
+                    className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-accent via-accent-muted to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              </a>
             </div>
           </div>
         </div>

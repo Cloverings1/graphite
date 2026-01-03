@@ -1,13 +1,9 @@
-"use client";
-
-import { useState } from "react";
 import { pricingTiers } from "@/data/pricing-tiers";
 import { Check } from "lucide-react";
-import { RequestAccessModal } from "./request-access-modal";
+
+const TALLY_FORM_URL = "https://tally.so/r/BzdXO4";
 
 export function Pricing() {
-  const [showModal, setShowModal] = useState(false);
-
   return (
     <section className="py-32 relative overflow-visible">
       {/* Background accent */}
@@ -140,16 +136,18 @@ export function Pricing() {
                     </div>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className={`w-full py-3.5 px-6 rounded-full text-sm font-medium transition-all duration-300 ${
+                  <a
+                    href={TALLY_FORM_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`block w-full py-3.5 px-6 rounded-full text-sm font-medium text-center transition-all duration-300 ${
                       tier.popular
                         ? "bg-accent text-accent-foreground hover:shadow-lg hover:shadow-accent/20"
                         : "bg-border/50 text-foreground hover:bg-border"
                     }`}
                   >
                     {tier.cta}
-                  </button>
+                  </a>
                 )}
               </div>
 
@@ -166,9 +164,6 @@ export function Pricing() {
           Designed for active project workflows. Not intended for long-term archival or backup storage.
         </p>
       </div>
-
-      {/* Request Access Modal */}
-      {showModal && <RequestAccessModal onClose={() => setShowModal(false)} />}
     </section>
   );
 }

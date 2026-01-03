@@ -23,7 +23,7 @@ export const pricingTiers: PricingTier[] = [
       "1 active transfer at a time",
     ],
     popular: true,
-    cta: "Talk with Sales",
+    cta: "Request Access",
   },
   {
     id: "prime",
