@@ -2,6 +2,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { SpeedSection } from "@/components/landing/speed-section";
+import { GraphiteFlux } from "@/components/landing/graphite-flux";
 import { Pricing } from "@/components/landing/pricing";
 import { FAQ } from "@/components/landing/faq";
 import { FinalCTA } from "@/components/landing/final-cta";
@@ -14,6 +15,7 @@ export default function Home() {
       <Hero />
       <Features />
       <SpeedSection />
+      <GraphiteFlux />
       <Pricing />
       <FAQ />
       <FinalCTA />
