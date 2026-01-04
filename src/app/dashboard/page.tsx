@@ -14,24 +14,27 @@ export default function DashboardPage() {
   const supabase = createClient();
 
   const fetchFiles = useCallback(async () => {
+    console.log("[Dashboard] fetchFiles called, API_URL:", API_URL);
     try {
       // Use getUser() first to validate/refresh the session
       const { data: { user }, error: userError } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        console.error("Auth error:", userError?.message);
+        console.error("[Dashboard] Auth error:", userError?.message);
         setLoading(false);
         return;
       }
+      console.log("[Dashboard] User authenticated:", user.id);
 
       // Now get the session with fresh access token
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session?.access_token) {
-        console.error("No access token in session");
+        console.error("[Dashboard] No access token in session");
         setLoading(false);
         return;
       }
+      console.log("[Dashboard] Fetching files from API...");
 
       const res = await fetch(`${API_URL}/api/files?parent_id=null`, {
         headers: {
@@ -39,8 +42,11 @@ export default function DashboardPage() {
         },
       });
 
+      console.log("[Dashboard] API response status:", res.status);
+
       if (res.ok) {
         const data = await res.json();
+        console.log("[Dashboard] Received", data.length, "files");
         const transformedFiles: FileItem[] = data.map((file: Record<string, unknown>) => ({
           id: file.id,
           name: file.name,
@@ -53,9 +59,12 @@ export default function DashboardPage() {
           parentId: file.parent_id,
         }));
         setFiles(transformedFiles);
+      } else {
+        const errorText = await res.text();
+        console.error("[Dashboard] API error:", res.status, errorText);
       }
     } catch (error) {
-      console.error("Failed to fetch files:", error);
+      console.error("[Dashboard] Failed to fetch files:", error);
     } finally {
       setLoading(false);
     }
