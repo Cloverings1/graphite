@@ -28,7 +28,7 @@ export function FileBrowser({ files, title = "All Files", loading = false, onUpd
       </div>
 
       {/* File list/grid */}
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02]">
         {loading ? (
           <div className="py-16 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-violet-500" />
