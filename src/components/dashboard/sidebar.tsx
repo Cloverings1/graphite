@@ -5,7 +5,6 @@ import { Logo } from "@/components/icons/logo";
 import { SidebarNav } from "./sidebar-nav";
 import { FolderList } from "./folder-list";
 import { StorageIndicator } from "./storage-indicator";
-import { Button } from "@/components/ui/button";
 import { Settings, HelpCircle, LogOut } from "lucide-react";
 import { SignOutButton, UserButton } from "@/components/auth/auth-wrapper";
 import Link from "next/link";
@@ -15,7 +14,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.graphite.atxcopy
 
 export function Sidebar() {
   const [usedStorage, setUsedStorage] = useState(0);
-  const [totalStorage, setTotalStorage] = useState(100 * 1024 * 1024 * 1024); // 100GB default
+  const [totalStorage, setTotalStorage] = useState(100 * 1024 * 1024 * 1024);
   const supabase = createClient();
 
   useEffect(() => {
@@ -44,41 +43,44 @@ export function Sidebar() {
   }, [supabase]);
 
   return (
-    <aside className="flex h-screen w-60 flex-col border-r border-border bg-background">
+    <aside className="flex h-screen w-64 flex-col border-r border-white/[0.06] bg-black/40 backdrop-blur-xl relative">
+      {/* Gradient accent line */}
+      <div className="absolute top-0 right-0 bottom-0 w-px bg-gradient-to-b from-violet-500/20 via-transparent to-fuchsia-500/20" />
+
       {/* Logo */}
       <div className="flex h-16 items-center justify-between px-6">
-        <Link href="/">
+        <Link href="/" className="opacity-80 hover:opacity-100 transition-opacity">
           <Logo />
         </Link>
         <UserButton afterSignOutUrl="/" />
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 overflow-y-auto px-3 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4">
         <SidebarNav />
 
-        <div className="my-6 h-px bg-border" />
+        <div className="my-6 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
         <FolderList />
       </div>
 
       {/* Bottom section */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-white/[0.06] p-4">
         <StorageIndicator used={usedStorage} total={totalStorage} />
 
         <div className="mt-4 flex items-center justify-between">
-          <Button variant="ghost" size="sm" className="gap-2">
+          <button className="flex items-center gap-2 px-3 py-2 text-sm text-white/50 hover:text-white/80 transition-colors rounded-lg hover:bg-white/[0.03]">
             <Settings className="h-4 w-4" />
             Settings
-          </Button>
+          </button>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <button className="p-2 text-white/40 hover:text-white/70 transition-colors rounded-lg hover:bg-white/[0.03]">
               <HelpCircle className="h-4 w-4" />
-            </Button>
+            </button>
             <SignOutButton redirectUrl="/">
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <button className="p-2 text-white/40 hover:text-white/70 transition-colors rounded-lg hover:bg-white/[0.03]">
                 <LogOut className="h-4 w-4" />
-              </Button>
+              </button>
             </SignOutButton>
           </div>
         </div>

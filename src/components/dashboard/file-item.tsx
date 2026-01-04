@@ -18,10 +18,8 @@ import {
   FolderInput,
   Trash2,
   StarOff,
-  X,
   Share2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { ShareDialog } from "./share-dialog";
 
@@ -46,8 +44,22 @@ function getFileIcon(file: FileItemType) {
   return File;
 }
 
+function getFileIconColor(file: FileItemType) {
+  if (file.type === "folder") return "text-violet-400";
+
+  const mimeType = file.mimeType || "";
+  if (mimeType.startsWith("video/")) return "text-rose-400";
+  if (mimeType.startsWith("image/")) return "text-emerald-400";
+  if (mimeType.startsWith("audio/")) return "text-amber-400";
+  if (mimeType.includes("zip") || mimeType.includes("archive")) return "text-orange-400";
+  if (mimeType.includes("pdf")) return "text-red-400";
+
+  return "text-white/40";
+}
+
 export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
   const Icon = getFileIcon(file);
+  const iconColor = getFileIconColor(file);
   const [menuOpen, setMenuOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [newName, setNewName] = useState(file.name);
@@ -57,7 +69,6 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -70,7 +81,6 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
-  // Focus input when renaming
   useEffect(() => {
     if (renaming && inputRef.current) {
       inputRef.current.focus();
@@ -173,15 +183,17 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
   const renderMenu = () => (
     <div
       ref={menuRef}
-      className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-border bg-card py-1 shadow-lg"
+      className="absolute right-0 top-full z-50 mt-1 w-48 rounded-xl border border-white/10 bg-black/90 backdrop-blur-xl py-1.5 shadow-xl"
     >
       {menuItems.filter(item => item.show).map((item, i) => (
         <button
           key={i}
           onClick={item.onClick}
           className={cn(
-            "flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-accent/10",
-            item.danger && "text-red-500 hover:bg-red-500/10"
+            "flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors",
+            item.danger
+              ? "text-red-400 hover:bg-red-500/10"
+              : "text-white/70 hover:bg-white/[0.05] hover:text-white"
           )}
         >
           <item.icon className="h-4 w-4" />
@@ -206,21 +218,21 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
             onBlur={handleRename}
             onKeyDown={(e) => e.key === "Escape" && setRenaming(false)}
             disabled={loading}
-            className="w-full rounded border border-accent bg-background px-2 py-1 text-sm outline-none"
+            className="w-full rounded-lg border border-violet-500/30 bg-black px-3 py-1.5 text-sm text-white outline-none focus:border-violet-500/50"
           />
         </form>
       );
     }
-    return <p className="truncate text-sm font-medium">{file.name}</p>;
+    return <p className="truncate text-sm font-medium text-white/90">{file.name}</p>;
   };
 
   if (view === "grid") {
     return (
       <>
-        <div className="group relative rounded-xl border border-border bg-card p-4 transition-colors hover:border-muted-foreground">
+        <div className="group relative rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 transition-all hover:border-white/10 hover:bg-white/[0.04]">
           <div className="flex flex-col items-center gap-3">
-            <div className="rounded-lg bg-background p-4">
-              <Icon className="h-8 w-8 text-muted" />
+            <div className="rounded-xl bg-white/[0.03] p-4">
+              <Icon className={cn("h-8 w-8", iconColor)} />
             </div>
             <div className="w-full text-center">
               {renaming ? (
@@ -233,13 +245,13 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
                     onBlur={handleRename}
                     onKeyDown={(e) => e.key === "Escape" && setRenaming(false)}
                     disabled={loading}
-                    className="w-full rounded border border-accent bg-background px-2 py-1 text-center text-sm outline-none"
+                    className="w-full rounded-lg border border-violet-500/30 bg-black px-2 py-1 text-center text-sm text-white outline-none"
                   />
                 </form>
               ) : (
                 <>
-                  <p className="truncate text-sm font-medium">{file.name}</p>
-                  <p className="text-xs text-muted">
+                  <p className="truncate text-sm font-medium text-white/90">{file.name}</p>
+                  <p className="text-xs text-white/30 mt-1">
                     {file.size ? formatBytes(file.size) : "--"}
                   </p>
                 </>
@@ -247,22 +259,19 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
             </div>
           </div>
           {file.starred && (
-            <Star className="absolute right-2 top-2 h-4 w-4 fill-accent text-accent" />
+            <Star className="absolute right-2 top-2 h-4 w-4 fill-violet-400 text-violet-400" />
           )}
           <div className="absolute right-2 bottom-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            <button
               onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+              className="p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/[0.05] opacity-0 group-hover:opacity-100 transition-all"
             >
               <MoreVertical className="h-4 w-4" />
-            </Button>
+            </button>
             {menuOpen && renderMenu()}
           </div>
         </div>
 
-        {/* Share Dialog */}
         {shareDialogOpen && (
           <ShareDialog
             fileId={file.id}
@@ -276,36 +285,33 @@ export function FileItemRow({ file, view, onUpdate }: FileItemProps) {
 
   return (
     <>
-      <div className="group flex items-center gap-4 rounded-lg border border-transparent px-4 py-3 transition-colors hover:border-border hover:bg-card">
-        <Icon className="h-5 w-5 shrink-0 text-muted" />
+      <div className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-white/[0.02]">
+        <Icon className={cn("h-5 w-5 shrink-0", iconColor)} />
 
         <div className="min-w-0 flex-1">
           {renderName()}
         </div>
 
-        <div className="flex items-center gap-6 text-sm text-muted">
+        <div className="flex items-center gap-6 text-sm text-white/40">
           {file.starred && (
-            <Star className="h-4 w-4 fill-accent text-accent" />
+            <Star className="h-4 w-4 fill-violet-400 text-violet-400" />
           )}
           <span className="w-20 text-right">
             {file.size ? formatBytes(file.size) : "--"}
           </span>
           <span className="w-28 text-right">{formatDate(file.updatedAt)}</span>
           <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            <button
               onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+              className="p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/[0.05] opacity-0 group-hover:opacity-100 transition-all"
             >
               <MoreVertical className="h-4 w-4" />
-            </Button>
+            </button>
             {menuOpen && renderMenu()}
           </div>
         </div>
       </div>
 
-      {/* Share Dialog */}
       {shareDialogOpen && (
         <ShareDialog
           fileId={file.id}

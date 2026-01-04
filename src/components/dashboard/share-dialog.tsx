@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { X, Copy, Check, Lock, Clock, Link2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.graphite.atxcopy.com";
@@ -84,16 +82,16 @@ export function ShareDialog({ fileId, fileName, onClose }: ShareDialogProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
+      <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl p-6 shadow-2xl">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-muted hover:text-foreground transition-colors"
+          className="absolute right-4 top-4 text-white/40 hover:text-white/70 transition-colors"
         >
           <X className="h-5 w-5" />
         </button>
@@ -101,33 +99,36 @@ export function ShareDialog({ fileId, fileName, onClose }: ShareDialogProps) {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <Link2 className="h-5 w-5 text-accent" />
-            <h2 className="text-lg font-medium">Share File</h2>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center">
+              <Link2 className="h-4 w-4 text-violet-400" />
+            </div>
+            <h2 className="text-lg font-medium text-white">Share File</h2>
           </div>
-          <p className="text-sm text-muted truncate">{fileName}</p>
+          <p className="text-sm text-white/40 truncate">{fileName}</p>
         </div>
 
         {!shareLink ? (
           <div className="space-y-5">
             {/* Password (optional) */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium mb-2">
-                <Lock className="h-4 w-4 text-muted" />
+              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-2">
+                <Lock className="h-4 w-4 text-white/40" />
                 Password Protection
-                <span className="text-muted font-normal">(optional)</span>
+                <span className="text-white/30 font-normal">(optional)</span>
               </label>
-              <Input
+              <input
                 type="password"
                 placeholder="Leave empty for public link"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-violet-500/30 transition-all"
               />
             </div>
 
             {/* Expiration */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium mb-3">
-                <Clock className="h-4 w-4 text-muted" />
+              <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
+                <Clock className="h-4 w-4 text-white/40" />
                 Link Expiration
               </label>
               <div className="grid grid-cols-4 gap-2">
@@ -136,10 +137,10 @@ export function ShareDialog({ fileId, fileName, onClose }: ShareDialogProps) {
                     key={option.label}
                     type="button"
                     onClick={() => setExpiresIn(option.value)}
-                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                    className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
                       expiresIn === option.value
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-border/50 text-foreground hover:bg-border"
+                        ? "bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 text-white"
+                        : "bg-white/[0.03] border border-white/[0.06] text-white/50 hover:text-white/70"
                     }`}
                   >
                     {option.label}
@@ -150,49 +151,46 @@ export function ShareDialog({ fileId, fileName, onClose }: ShareDialogProps) {
 
             {/* Error */}
             {error && (
-              <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+              <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
                 {error}
               </div>
             )}
 
             {/* Create Button */}
-            <Button
+            <button
               onClick={handleCreateLink}
-              variant="primary"
-              className="w-full"
               disabled={loading}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white font-medium hover:opacity-90 transition-all disabled:opacity-50"
             >
               {loading ? "Creating..." : "Create Share Link"}
-            </Button>
+            </button>
           </div>
         ) : (
           <div className="space-y-4">
             {/* Success state */}
-            <div className="rounded-xl bg-background border border-border p-4">
-              <p className="text-xs text-muted mb-2">Share Link</p>
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
+              <p className="text-xs text-white/40 mb-2">Share Link</p>
               <div className="flex items-center gap-2">
-                <Input
+                <input
                   value={shareLink}
                   readOnly
-                  className="text-sm font-mono"
+                  className="flex-1 rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm font-mono text-white/80 outline-none"
                 />
-                <Button
-                  variant="outline"
-                  size="icon"
+                <button
                   onClick={handleCopy}
-                  className="flex-shrink-0"
+                  className="p-2.5 rounded-lg border border-white/10 bg-white/[0.03] text-white/50 hover:text-white hover:bg-white/[0.06] transition-all"
                 >
                   {copied ? (
-                    <Check className="h-4 w-4 text-green-500" />
+                    <Check className="h-4 w-4 text-emerald-400" />
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}
-                </Button>
+                </button>
               </div>
             </div>
 
             {/* Info */}
-            <div className="space-y-2 text-sm text-muted">
+            <div className="space-y-2 text-sm text-white/40">
               {password && (
                 <p className="flex items-center gap-2">
                   <Lock className="h-3.5 w-3.5" />
@@ -215,19 +213,21 @@ export function ShareDialog({ fileId, fileName, onClose }: ShareDialogProps) {
 
             {/* Actions */}
             <div className="flex gap-2">
-              <Button variant="outline" onClick={onClose} className="flex-1">
+              <button
+                onClick={onClose}
+                className="flex-1 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-white/70 font-medium hover:bg-white/[0.06] transition-all"
+              >
                 Done
-              </Button>
-              <Button
-                variant="primary"
+              </button>
+              <button
                 onClick={() => {
                   setShareLink(null);
                   setPassword("");
                 }}
-                className="flex-1"
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white font-medium hover:opacity-90 transition-all"
               >
                 Create Another
-              </Button>
+              </button>
             </div>
           </div>
         )}

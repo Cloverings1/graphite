@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { cn, formatBytes, formatDuration } from "@/lib/utils";
-import { Upload, Cloud, X, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, Cloud, X, CheckCircle2, AlertCircle, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
@@ -36,35 +36,31 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
     const supabase = supabaseRef.current;
     const uppy = new Uppy({
       restrictions: {
-        maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
+        maxFileSize: 10 * 1024 * 1024 * 1024,
       },
       autoProceed: true,
     });
 
-    // Cache token to avoid auth calls on every chunk
     let cachedToken: string | null = null;
     let tokenExpiry = 0;
 
     uppy.use(Tus, {
       endpoint: `${API_URL}/upload`,
-      chunkSize: 512 * 1024 * 1024, // 512MB chunks (max throughput for stable gigabit+)
+      chunkSize: 512 * 1024 * 1024,
       retryDelays: [0, 1000, 3000, 5000],
       removeFingerprintOnSuccess: true,
-      limit: 10, // 8-10 parallel uploads for max throughput
-      // parallelUploads: 4, // TODO: Enable when backend supports TUS concatenation
+      limit: 10,
       async onBeforeRequest(req) {
-        // Use cached token if still valid (refresh 5 min before expiry)
         const now = Date.now();
         if (cachedToken && tokenExpiry > now + 300000) {
           req.setHeader("Authorization", `Bearer ${cachedToken}`);
           return;
         }
 
-        // Get fresh token
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.access_token) {
           cachedToken = session.access_token;
-          tokenExpiry = (session.expires_at || 0) * 1000; // Convert to ms
+          tokenExpiry = (session.expires_at || 0) * 1000;
           req.setHeader("Authorization", `Bearer ${cachedToken}`);
         }
       },
@@ -196,7 +192,6 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
   const activeUploads = uploads.filter((u) => u.status === "uploading");
   const completedUploads = uploads.filter((u) => u.status === "complete");
 
-  // Force re-render every second for live elapsed time
   const [, setTick] = useState(0);
   useEffect(() => {
     if (activeUploads.length === 0) return;
@@ -220,58 +215,70 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "relative cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition-all",
+          "relative cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition-all duration-300",
           isDragging
-            ? "border-accent bg-accent/10"
-            : "border-border bg-card hover:border-muted-foreground hover:bg-card/80"
+            ? "border-violet-500/50 bg-violet-500/[0.05]"
+            : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
         )}
       >
-        <div className="flex flex-col items-center gap-4">
+        {/* Gradient glow on drag */}
+        {isDragging && (
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-violet-500/10 animate-pulse" />
+        )}
+
+        <div className="relative flex flex-col items-center gap-4">
           <div
             className={cn(
-              "rounded-full p-4 transition-colors",
-              isDragging ? "bg-accent/20" : "bg-card"
+              "rounded-2xl p-5 transition-all duration-300",
+              isDragging
+                ? "bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20"
+                : "bg-white/[0.03]"
             )}
           >
             {isDragging ? (
-              <Cloud className="h-8 w-8 text-accent" />
+              <Cloud className="h-10 w-10 text-violet-400" />
             ) : (
-              <Upload className="h-8 w-8 text-muted" />
+              <Upload className="h-10 w-10 text-white/40" />
             )}
           </div>
           <div>
-            <p className="text-lg font-medium">
+            <p className="text-lg font-medium text-white">
               {isDragging ? "Drop files here" : "Drag files here"}
             </p>
-            <p className="mt-1 text-sm text-muted">or click to browse</p>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Up to 10GB per file • Resumable uploads • Full speed
-            </p>
+            <p className="mt-1 text-sm text-white/40">or click to browse</p>
+            <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white/30">
+              <Zap className="h-3 w-3 text-violet-400" />
+              <span>Up to 10GB per file</span>
+              <span className="text-white/10">•</span>
+              <span>Resumable</span>
+              <span className="text-white/10">•</span>
+              <span>Full speed</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Active Uploads */}
       {activeUploads.length > 0 && (
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-medium">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-sm font-medium text-white">
               Uploading {activeUploads.length} file{activeUploads.length > 1 ? "s" : ""}
             </h3>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {activeUploads.map((upload) => (
               <div key={upload.id} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="truncate font-medium">{upload.name}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted">
+                <div className="flex items-center justify-between">
+                  <span className="truncate text-sm font-medium text-white/90">{upload.name}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs text-white/40">
                       {formatDuration(Math.floor((Date.now() - upload.startTime) / 1000))}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs font-mono text-emerald-400">
                       {formatBytes(upload.speed)}/s
                     </span>
-                    <span className="text-xs text-accent">
+                    <span className="text-xs font-medium text-violet-400">
                       {upload.progress.toFixed(0)}%
                     </span>
                     <button
@@ -279,17 +286,19 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
                         e.stopPropagation();
                         removeUpload(upload.id);
                       }}
-                      className="text-muted-foreground hover:text-foreground"
+                      className="text-white/30 hover:text-white/60 transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-border">
+                <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
                   <div
-                    className="h-full bg-accent transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-300 relative"
                     style={{ width: `${upload.progress}%` }}
-                  />
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                  </div>
                 </div>
               </div>
             ))}
@@ -299,15 +308,15 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
       {/* Completed Uploads */}
       {completedUploads.length > 0 && (
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-medium text-green-500">
-              <CheckCircle2 className="mr-2 inline h-4 w-4" />
+        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-400">
+              <CheckCircle2 className="h-4 w-4" />
               {completedUploads.length} file{completedUploads.length > 1 ? "s" : ""} uploaded
             </h3>
             <button
               onClick={clearCompleted}
-              className="text-xs text-muted-foreground hover:text-foreground"
+              className="text-xs text-white/40 hover:text-white/60 transition-colors"
             >
               Clear
             </button>
@@ -315,17 +324,17 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
           <div className="space-y-2">
             {completedUploads.slice(0, 5).map((upload) => (
               <div key={upload.id} className="flex items-center justify-between text-sm">
-                <span className="truncate">{upload.name}</span>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="truncate text-white/70">{upload.name}</span>
+                <div className="flex items-center gap-4 text-xs">
                   {upload.duration !== undefined && (
-                    <span className="text-green-500">{formatDuration(upload.duration)}</span>
+                    <span className="text-emerald-400">{formatDuration(upload.duration)}</span>
                   )}
-                  <span>{formatBytes(upload.size)}</span>
+                  <span className="text-white/40">{formatBytes(upload.size)}</span>
                 </div>
               </div>
             ))}
             {completedUploads.length > 5 && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/30">
                 +{completedUploads.length - 5} more
               </p>
             )}
@@ -335,9 +344,9 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
       {/* Error Uploads */}
       {uploads.filter((u) => u.status === "error").length > 0 && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4">
-          <h3 className="mb-2 text-sm font-medium text-red-500">
-            <AlertCircle className="mr-2 inline h-4 w-4" />
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.03] p-5">
+          <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-red-400">
+            <AlertCircle className="h-4 w-4" />
             Upload errors
           </h3>
           <div className="space-y-2">
@@ -345,7 +354,7 @@ export function UploadZone({ onUploadComplete }: UploadZoneProps) {
               .filter((u) => u.status === "error")
               .map((upload) => (
                 <div key={upload.id} className="text-sm">
-                  <span className="truncate">{upload.name}</span>
+                  <span className="truncate text-white/70">{upload.name}</span>
                   <span className="ml-2 text-xs text-red-400">
                     {upload.error || "Upload failed"}
                   </span>
